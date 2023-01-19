@@ -2,8 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\Article;
+use app\models\Category;
 use Yii;
+use yii\data\Pagination;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
@@ -59,17 +63,55 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
-    {
-        return $this->render('index');
+    public function actionIndex(){
+
+        $data = Article::getAll(1);
+
+        $popular = Article::getPopular();
+        $recent = Article::getRecent();
+        $categories = Category::getAll();
+
+        return $this->render('index', [
+            'articles'=>$data['articles'],
+            'pagination'=>$data['pagination'],
+            'popular'=>$popular,
+            'recent'=>$recent,
+            'categories'=>$categories
+        ]);
     }
 
-    public function actionView(){
-        return $this->render('single');
+    public function actionView($id){
+
+        $article = Article::findOne($id);
+        $popular = Article::find()->orderBy('viewed desc')->limit('3')->all();
+        $recent = Article::find()->orderBy('date desc')->limit('4')->all();
+        $categories = Category::find()->all();
+        $tags = ArrayHelper::map($article->tags, 'id', 'title');
+
+        return $this->render('single', [
+            'article'=>$article,
+            'popular' => $popular,
+            'recent' => $recent,
+            'categories' => $categories,
+            'tags' => $tags
+        ]);
     }
 
-    public function actionCategory(){
-        return $this->render('category');
+    public function actionCategory($id){
+
+        $data = Category::getArticlesByCategory($id);
+
+        $popular = Article::getPopular();
+        $recent = Article::getRecent();
+        $categories = Category::getAll();
+
+        return $this->render('category', [
+            'articles'=>$data['articles'],
+            'pagination'=>$data['pagination'],
+            'popular'=>$popular,
+            'recent'=>$recent,
+            'categories'=>$categories
+        ]);
     }
 
     /**

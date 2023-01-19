@@ -1,20 +1,16 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/db.php';
+$params = require(__DIR__ . '/params.php');
+$db = require(__DIR__ . '/db.php');
 
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
-    'aliases' => [
-        '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
-    ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'PT5ymLpStZjkhlpXeAOvqJDzbIsLOP6i',
+            'cookieValidationKey' => 'gEttFxTuxZi1vBWQShzoAWY5ndIuXyQC',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -22,14 +18,16 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+            'loginUrl' => ['auth/login'],
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
-            'class' => \yii\symfonymailer\Mailer::class,
-            'viewPath' => '@app/mail',
-            // send all mails to a file by default.
+            'class' => 'yii\swiftmailer\Mailer',
+            // send all mails to a file by default. You have to set
+            // 'useFileTransport' to false and configure a transport
+            // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
         'log' => [
@@ -51,13 +49,14 @@ $config = [
         ],
 
     ],
-    'params' => $params,
 
     'modules' => [
         'admin' => [
             'class' => 'app\modules\admin\Module',
         ],
     ],
+
+    'params' => $params,
 ];
 
 if (YII_ENV_DEV) {
