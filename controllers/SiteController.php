@@ -4,7 +4,9 @@ namespace app\controllers;
 
 use app\models\Article;
 use app\models\Category;
+use app\models\SearchForm;
 use app\models\CommentForm;
+use app\models\Tag;
 use Yii;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
@@ -85,6 +87,7 @@ class SiteController extends Controller
         $recent = Article::getRecent();
         $categories = Category::getAll();
         $comments = $article->getArticleComments();
+        $tags = $article->tags;
         $commentForm = new CommentForm();
 
         $article->viewedCounter();
@@ -95,7 +98,8 @@ class SiteController extends Controller
             'recent'=>$recent,
             'categories'=>$categories,
             'comments'=>$comments,
-            'commentForm'=>$commentForm
+            'tags' => $tags,
+            'commentForm'=>$commentForm,
         ]);
     }
 

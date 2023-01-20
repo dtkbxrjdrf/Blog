@@ -23,9 +23,9 @@ use yii\helpers\Url;
                             <?= $article->content; ?>
                         </div>
                         <div class="decoration">
-                            <? foreach ($tags as $tag):?>
-                                <a href="#" class="btn btn-default"><?= $tag = 'Tag';?></a>
-                            <? endforeach; ?>
+                            <?php foreach ($tags as $tag): ?>
+                                <a href="<?= Url::toRoute(['site/tag', 'id'=>$tag->id]); ?>" class="btn btn-default"><?= $tag->title ?></a>
+                            <?php endforeach; ?>
                         </div>
 
                         <div class="social-share">
