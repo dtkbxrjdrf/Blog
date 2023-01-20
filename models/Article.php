@@ -9,16 +9,16 @@ use yii\helpers\ArrayHelper;
 /**
  * This is the model class for table "article".
  *
- * @property int $id
- * @property string|null $title
- * @property string|null $description
- * @property string|null $content
- * @property string|null $date
- * @property string|null $image
- * @property int|null $viewed
- * @property int|null $user_id
- * @property int|null $status
- * @property int|null $category_id
+ * @property integer $id
+ * @property string $title
+ * @property string $description
+ * @property string $content
+ * @property string $date
+ * @property string $image
+ * @property integer $viewed
+ * @property integer $user_id
+ * @property integer $status
+ * @property integer $category_id
  *
  * @property ArticleTag[] $articleTags
  * @property Comment[] $comments
@@ -26,7 +26,7 @@ use yii\helpers\ArrayHelper;
 class Article extends \yii\db\ActiveRecord
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function tableName()
     {
@@ -34,21 +34,22 @@ class Article extends \yii\db\ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function rules()
     {
         return [
             [['title'], 'required'],
-            [['title', 'description', 'content'], 'string'],
-            [['title'], 'string', 'max'=>255],
+            [['title','description','content'], 'string'],
             [['date'], 'date', 'format'=>'php:Y-m-d'],
-            [['date'], 'default', 'value'=>date('Y-m-d')]
+            [['date'], 'default', 'value' => date('Y-m-d')],
+            [['title'], 'string', 'max' => 255],
+            [['category_id'], 'number']
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function attributeLabels()
     {
@@ -66,21 +67,27 @@ class Article extends \yii\db\ActiveRecord
         ];
     }
 
-    public function SaveImage($fileName){
-        $this->image = $fileName;
+    public function saveArticle()
+    {
+        $this->user_id = Yii::$app->user->id;
         return $this->save(false);
     }
 
-    public function getImage(){
-        if ($this->image){
-            return '/uploads/'.$this->image;
-        }
-        return '/no-image.png';
+    public function saveImage($filename)
+    {
+        $this->image = $filename;
+        return $this->save(false);
     }
 
-    public function deleteImage(){
-        $imageUploadModule = new ImageUpload();
-        $imageUploadModule->deleteCurrentImage($this->image);
+    public function getImage()
+    {
+        return ($this->image) ? '/uploads/' . $this->image : '/no-image.png';
+    }
+
+    public function deleteImage()
+    {
+        $imageUploadModel = new ImageUpload();
+        $imageUploadModel->deleteCurrentImage($this->image);
     }
 
     public function beforeDelete()
@@ -91,48 +98,58 @@ class Article extends \yii\db\ActiveRecord
 
     public function getCategory()
     {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
+        return $this->hasOne(Category::className(), ['id' => 'category_id']);
     }
 
-    public function saveCategory($category_id){
+    public function saveCategory($category_id)
+    {
         $category = Category::findOne($category_id);
-        if ($category != null){
+        if($category != null)
+        {
             $this->link('category', $category);
             return true;
         }
     }
 
-    public function getTags(){
-        return $this->hasMany(Tag::class, ['id' => 'tag_id'])
+    public function getTags()
+    {
+        return $this->hasMany(Tag::className(), ['id' => 'tag_id'])
             ->viaTable('article_tag', ['article_id' => 'id']);
     }
 
-    public function getSelectedTags(){
-        $selectedTags = $this->getTags()->select('id')->asArray()->all();
-        return ArrayHelper::getColumn($selectedTags, 'id');
+    public function getSelectedTags()
+    {
+        $selectedIds = $this->getTags()->select('id')->asArray()->all();
+        return ArrayHelper::getColumn($selectedIds, 'id');
     }
 
-    public function saveTags($tags){
-        if (is_array($tags)){
+    public function saveTags($tags)
+    {
+        if (is_array($tags))
+        {
             $this->clearCurrentTags();
-            foreach ($tags as $tag_id){
+
+            foreach($tags as $tag_id)
+            {
                 $tag = Tag::findOne($tag_id);
                 $this->link('tags', $tag);
             }
         }
     }
 
-    public function clearCurrentTags(){
+    public function clearCurrentTags()
+    {
         ArticleTag::deleteAll(['article_id'=>$this->id]);
     }
 
-    public function getDate(){
+    public function getDate()
+    {
         return Yii::$app->formatter->asDate($this->date);
     }
 
-    public static function getAll($pageSize = 5){
-
-        // build a DB query to get all articles with status = 1
+    public static function getAll($pageSize = 5)
+    {
+        // build a DB query to get all articles
         $query = Article::find();
 
         // get the total number of articles (but do not fetch the article data yet)
@@ -152,11 +169,34 @@ class Article extends \yii\db\ActiveRecord
         return $data;
     }
 
-    public static function getPopular(){
+    public static function getPopular()
+    {
         return Article::find()->orderBy('viewed desc')->limit(3)->all();
     }
 
-    public static function getRecent(){
+    public static function getRecent()
+    {
         return Article::find()->orderBy('date asc')->limit(4)->all();
+    }
+
+    public function getComments()
+    {
+        return $this->hasMany(Comment::className(), ['article_id'=>'id']);
+    }
+
+    public function getArticleComments()
+    {
+        return $this->getComments()->where(['status'=>1])->all();
+    }
+
+    public function getAuthor()
+    {
+        return $this->hasOne(User::className(), ['id'=>'user_id']);
+    }
+
+    public function viewedCounter()
+    {
+        $this->viewed += 1;
+        return $this->save(false);
     }
 }
