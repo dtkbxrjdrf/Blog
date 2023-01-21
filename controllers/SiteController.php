@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\models\Article;
 use app\models\Category;
-use app\models\SearchForm;
 use app\models\CommentForm;
 use app\models\Tag;
 use Yii;
@@ -82,6 +81,7 @@ class SiteController extends Controller
 
     public function actionView($id)
     {
+        $data = Article::getAll();
         $article = Article::findOne($id);
         $popular = Article::getPopular();
         $recent = Article::getRecent();
@@ -89,10 +89,10 @@ class SiteController extends Controller
         $comments = $article->getArticleComments();
         $tags = $article->tags;
         $commentForm = new CommentForm();
-
         $article->viewedCounter();
 
         return $this->render('single',[
+            'articles'=>$data['articles'],
             'article'=>$article,
             'popular'=>$popular,
             'recent'=>$recent,
@@ -105,7 +105,6 @@ class SiteController extends Controller
 
     public function actionCategory($id)
     {
-
         $data = Category::getArticlesByCategory($id);
         $popular = Article::getPopular();
         $recent = Article::getRecent();

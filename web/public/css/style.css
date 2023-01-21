@@ -41,6 +41,31 @@ Table of contents
 /*--------------------------------------
     elements
 --------------------------------------*/
+@media (min-width: 1200px){
+    .container {
+        width: 100%;
+    }
+}
+
+@media (min-width: 992px){
+    .col-md-3 {
+        width: 23.33333333%;
+    }
+
+    .col-md-8 {
+        width: 50.66666667%;
+    }
+
+    .col-md-4 {
+        width: 23.33333333%;
+    }
+}
+
+.Container {
+    margin-left: 45px;
+    margin-right: 45px;
+}
+
 body {
     font-family: 'Open Sans', sans-serif;
     background: #F4F4F4;

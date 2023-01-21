@@ -7,6 +7,10 @@ use yii\widgets\LinkPager;
 <div class="main-content">
     <div class="container">
         <div class="row">
+            <?= $this->render('/partials/category', [
+                'articles'=>$articles,
+                'categories'=>$categories
+            ]); ?>
             <div class="col-md-8">
                 <?php foreach ($articles as $article):?>
 
@@ -22,7 +26,7 @@ use yii\widgets\LinkPager;
                         <header class="entry-header text-center text-uppercase">
                             <h6><a href="<?= Url::toRoute(['site/category', 'id'=>$article->category->id]); ?>"><?= $article->category->title; ?></a></h6>
 
-                            <h1 class="entry-title"><a href="blog.html"><?= $article->title; ?>></a></h1>
+                            <h1 class="entry-title"><a href="<?= Url::toRoute(['site/view', 'id'=>$article->id]);?>"><?= $article->title?></a></h1>
 
 
                         </header>

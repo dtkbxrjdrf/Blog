@@ -6,6 +6,10 @@ use yii\helpers\Url;
 <div class="main-content">
     <div class="container">
         <div class="row">
+            <?= $this->render('/partials/category', [
+                'articles'=>$articles,
+                'categories'=>$categories
+            ]); ?>
             <div class="col-md-8">
                 <article class="post">
                     <div class="post-thumb">
